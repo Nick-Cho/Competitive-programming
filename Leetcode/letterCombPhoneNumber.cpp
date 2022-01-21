@@ -34,6 +34,5 @@ public:
     if (str.size() == 0)
       return {};
     return getKPC(str);
-    -
   }
 };
