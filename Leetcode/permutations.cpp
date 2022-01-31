@@ -1,15 +1,29 @@
 class Solution
 {
 public:
+  void solve(vector<int> &num, int idx, vector<vector<int>> &ans)
+  {
+    // Base case
+    if (idx >= num.size())
+    {
+      ans.push_back(num);
+      return;
+    }
+
+    for (int j = idx; j < num.size(); j++)
+    {
+      // Ek case solve karo ...
+      swap(num[idx], num[j]);
+      // Baki recursion sambhal lega ...
+      solve(num, idx + 1, ans);
+      // Backtracing...
+      swap(num[idx], num[j]);
+    }
+  }
   vector<vector<int>> permute(vector<int> &nums)
   {
-    vector<int> next = nums;
     vector<vector<int>> ans;
-    ans.push_back(nums);
-    while (prev_permutation(nums.begin(), nums.end()))
-      ans.push_back(nums);
-    while (next_permutation(next.begin(), next.end()))
-      ans.push_back(next);
+    solve(nums, 0, ans);
     return ans;
   }
 };
