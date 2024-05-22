@@ -1,0 +1,10 @@
+sportcheck -> 21000
+sportcheck -> 8700
+tim_hortons -> 225
+tim_hortons -> 1267
+tim_hortons -> 2116
+tim_hortons -> 2211
+subway -> 1853
+subway -> 2153
+sportcheck -> 7326
+tim_hortons -> 1321
