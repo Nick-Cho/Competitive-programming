@@ -8,7 +8,7 @@ rules = [
     {'points': 300, 'requirements': {'sportcheck': 75, 'tim_hortons': 25}},
     # {'points': 200, 'requirements': {'sportcheck': 75}}, -- never better than the alternative of 75 points for 20 dollars
     {'points': 150, 'requirements': {'sportcheck': 25, 'tim_hortons': 10, 'subway': 10}},
-    {'points': 75, 'requirements': {'sportcheck': 25, 'tim_hortons': 10}},
+    # {'points': 75, 'requirements': {'sportcheck': 25, 'tim_hortons': 10}},
     {'points': 75, 'requirements': {'sportcheck': 20}},
     {'points': 1, 'requirements': {}}
 ]
@@ -18,8 +18,10 @@ def calculate_reward_points(transactions, tx_level_points):
     merchant_spent = [0, 0, 0] # index: 0 - sportcheck, 1 - tim_hortons, 2 - subway
     name_to_idx = {"sportcheck": 0, "tim_hortons": 1, "subway": 2}
     i = 0
+    
     for tx in transactions.keys():
         merchant_name = transactions[tx]["merchant"]
+        
         if merchant_spent[name_to_idx[merchant_name]] < 0:
             raise ValueError("Transaction amount cannot be negative")
         
@@ -39,40 +41,27 @@ def calculate_reward_points(transactions, tx_level_points):
         i+=1
             
     max_points = 0
-   
-    @cache
-    def generate_point_combinations(merchant_transactions, rule_index, curr_points):
-        nonlocal max_points
-        merchant_transactions = list(merchant_transactions)
-        if rule_index == 0:
-            for amt_spent in merchant_transactions:
-                curr_points += amt_spent 
-            max_points = max(max_points, curr_points)
-            return
 
+    for i, rule in enumerate(rules):    
         b_can_apply_rule = True
-        
-        for merchant, idx in name_to_idx.items():
-            if merchant in rules[rule_index]["requirements"]:
-                if merchant_spent[idx] < rules[rule_index]["requirements"][merchant]:
-                    b_can_apply_rule = False
-                    break
-        
-        # Case where we skip the current rule
-        generate_point_combinations(tuple(merchant_transactions[::]), rule_index+1, curr_points)
-        
-        # Case where we try applying the rule
-        if b_can_apply_rule:
-            # Need to find limiting transaction to maximize amount of times we can apply the rule
-            curr_points += rules[rule_index]["points"]
-            for merchant, idx in name_to_idx.items():
-                if merchant in rules[rule_index]["requirements"]:
-                    merchant_transactions[idx] -= rules[rule_index]["requirements"][merchant]
+        max_applications = max(merchant_spent) 
+        if i == len(rules)-1:
+            max_points += sum(merchant_spent)
             
-            # Reapplying the same rule
-            generate_point_combinations(tuple(merchant_transactions[::]), rule_index, curr_points) 
+        else:    
+            for merchant, idx in name_to_idx.items():
+                if merchant in rule["requirements"]:
+                    max_applications = min(max_applications, merchant_spent[idx] // rule["requirements"][merchant])
+                    if merchant_spent[idx] < rule["requirements"][merchant]:
+                        b_can_apply_rule = False
+                        break
+            
+            if b_can_apply_rule:
+                points = rule["points"] * max_applications
+                for merchant, idx in name_to_idx.items():
+                    merchant_spent[idx] -= max_applications * rule["requirements"].get(merchant, 0)
+                max_points += points
 
-    generate_point_combinations(tuple(merchant_spent[::]), 0, 0)
     return max_points
     
 # Example usage with sample transactions
