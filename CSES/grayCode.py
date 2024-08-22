@@ -9,16 +9,16 @@ def main():
         
         prevSize = len(prevGrayCode)
         index = 0
-        print("Reversed: " , reversedPrevGrayCode)
+        # print("Reversed: " , reversedPrevGrayCode)
         while index < prevSize:
-            print(prevGrayCode)
+            # print(prevGrayCode)
             appendedZero = "0" + prevGrayCode[index]
             
             prevGrayCode[index] = "1" + reversedPrevGrayCode[index]
             
             prevGrayCode.append(appendedZero)
             
-            print(prevGrayCode)
+            # print(prevGrayCode)
             
             index += 1
             
